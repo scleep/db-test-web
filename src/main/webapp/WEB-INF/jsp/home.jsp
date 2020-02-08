@@ -19,6 +19,8 @@
     	<form action="selectDB" method="post">
     		<div><input type="radio" checked="checked" name="DBType" value="redis"/>Redis</div>
     		<div><input type="radio" name="DBType" value="mariaDB"/>MariaDB</div>
+    		<div><input type="radio" name="DBType" value="rabbitmq"/>RabbitMQ</div>
+    		<div><input type="radio" name="DBType" value="kafka"/>Kafka</div>
     		<div><br><input type="submit" value="Submit"></div>
     	</form>
   	</div>

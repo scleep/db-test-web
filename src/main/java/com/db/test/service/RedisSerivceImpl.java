@@ -1,22 +1,25 @@
 package com.db.test.service;
 
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
 import com.db.test.config.RedisConfig;
+import com.db.test.domain.rabbitmqEntity;
 import com.db.test.domain.redisEntity;
 
 import lombok.extern.slf4j.Slf4j;
 
+@org.springframework.stereotype.Service("redisService")
 @Slf4j
 @Configuration
-public class RedisSerivceImpl implements DBTestService {
+public class RedisSerivceImpl extends DBTestServiceImpl {
 	
 	@Autowired
 	private RedisConfig redisConfig;
@@ -28,9 +31,10 @@ public class RedisSerivceImpl implements DBTestService {
     RedisTemplate<String, Object> redisTemplateWithConfig;
 
 	@Override
-	public void insertData(redisEntity redisEntity) throws Exception {
-		log.info("insertData - Config("+redisEntity.getRedisIP()+":"+redisEntity.getRedisPort()+")");
-		log.info("insertData - insertData : "+redisEntity.getInsertData());
+	public void redisInsertData(redisEntity redisEntity) throws Exception {
+		log.info("redisInsertData - Config("+redisEntity.getRedisIP()+":"+redisEntity.getRedisPort()+")");
+		log.info("redisInsertData - insertData : "+redisEntity.getInsertData());
+		
 		Map<String, Object> insert = redisEntity.getInsertData();
 		try {
 			ValueOperations<String, Object> vop = redisTemplate.opsForValue();
@@ -46,6 +50,8 @@ public class RedisSerivceImpl implements DBTestService {
 
 	@Override
 	public void redisPutRandom(redisEntity redisEntity) throws Exception {
+		log.info("redisPutRandom - Config("+redisEntity.getRedisIP()+":"+redisEntity.getRedisPort()+")");
+		
 		int period = Integer.parseInt(redisEntity.getRedisPeriod());
 		int term = Integer.parseInt(redisEntity.getRedisTerm());
 		int count = 0;
@@ -72,6 +78,7 @@ public class RedisSerivceImpl implements DBTestService {
 	
 	@Override
 	public void redisGetAll(redisEntity redisEntity) throws Exception {
+		log.info("redisGetAll - Config("+redisEntity.getRedisIP()+":"+redisEntity.getRedisPort()+")");
 		
 		try {
 			ValueOperations<String, Object> vop = redisTemplate.opsForValue();
@@ -89,6 +96,9 @@ public class RedisSerivceImpl implements DBTestService {
 	
 	@Override
 	public void redisGetData(redisEntity redisEntity) throws Exception {
+		log.info("redisGetData - Config("+redisEntity.getRedisIP()+":"+redisEntity.getRedisPort()+")");
+		log.info("redisGetData - Key : "+redisEntity.getInsertData().keySet());
+		
 		Map<String, Object> insert = redisEntity.getInsertData();
 		try {
 			ValueOperations<String, Object> vop = redisTemplate.opsForValue();
@@ -134,6 +144,48 @@ public class RedisSerivceImpl implements DBTestService {
 			log.error(e.getMessage());		
 		}
 	}
+
+	@Override
+	public void redisGetAllConfig(redisEntity redisEntity) throws Exception {
+		
+		try {
+			RedisConnection vop = redisTemplate.getConnectionFactory().getConnection();
+			// Set<String> keys = redisTemplate.get;
+			// log.info("redisGetAll - ALL Keys : "+keys);
+			
+			
+			Properties result = vop.getConfig("*");
+	        //System.out.println(result);
+	        String[] result_list = result.toString().split(", ");
+	        
+	        int count = 1;
+	        
+	        for(String temp : result_list) {
+	        	System.out.println(count+": "+temp.split("=")[0]);
+	        	count++;
+	        	if(temp.split("=").length > 1) {
+	        		System.out.println(count+": "+temp.split("=")[1]);
+	        	} else {
+	        		System.out.println(count+": \"\"");
+	        	}
+	        	count++;
+	        }
+	        
+		} catch (Exception e) {
+			log.error(e.getMessage());		
+		}
+		
+	}
+
+	@Override
+	public void rabbitmqInsertData(rabbitmqEntity rabbitmqEntity) throws Exception {
+	}
+
+	@Override
+	public void rabbitmqGetData(rabbitmqEntity rabbitmqEntity) throws Exception {
+	}
+
+	
 	
 //	public void insertData2(redisEntity redisEntity) throws Exception {
 //		log.info("insertData - Config("+redisEntity.getRedisIP()+":"+redisEntity.getRedisPort()+")");

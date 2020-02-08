@@ -1,8 +1,9 @@
 package com.db.test.controller;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.Reader;
+import java.util.Properties;
 
+import org.apache.ibatis.io.Resources;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.ui.Model;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.db.test.domain.rabbitmqEntity;
 import com.db.test.domain.redisEntity;
 import com.db.test.service.DBTestService;
 
@@ -25,8 +27,17 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping(value = "/DBTest")
 public class DBTestController {
 	
+//	@Autowired
+//	@Qualifier("mariadbService")
+//	private DBTestService mariadbService;
+
 	@Autowired
-	private DBTestService dbTestService;
+	@Qualifier("redisService")
+	private DBTestService redisService;
+	
+	@Autowired
+	@Qualifier("rabbitmqService")
+	private DBTestService rabbitmqService;
 	
 	@RequestMapping(value = "/home", method = RequestMethod.GET)
 	public ModelAndView home() { 
@@ -45,17 +56,37 @@ public class DBTestController {
 		return mav; 
 	}
 	
+	
+	
 	@RequestMapping(value = "/selectDB", method = RequestMethod.POST)
 	public ModelAndView SelectDB(@RequestParam("DBType") String dbType) {
 		log.info("SelectDB - "+dbType);
 		ModelAndView mav = null;
+
+		String path = "application.properties";
+		Properties properties = new Properties();
+		
 		try {
+			Reader reader = Resources.getResourceAsReader(path);
+            properties.load(reader);
+            
 			switch (dbType) {
 			case "mariaDB":
 				mav = new ModelAndView("mariaDB");
 				break;
 			case "redis":
+				
 				mav = new ModelAndView("redis");
+				mav.addObject("setedHost", properties.get("spring.redis.host"));
+				mav.addObject("setedPort", properties.get("spring.redis.port"));
+				mav.addObject("setedPassword", properties.get("spring.redis.password"));
+				break;
+			case "rabbitmq":
+				mav = new ModelAndView("rabbitmq");
+				mav.addObject("setedHost", properties.get("spring.rabbitmq.host"));
+				mav.addObject("setedPort", properties.get("spring.rabbitmq.port"));
+				mav.addObject("setedPassword", properties.get("spring.rabbitmq.password"));
+				mav.addObject("setedUsername", properties.get("spring.rabbitmq.username"));
 				break;
 			default :
 				log.info("Undefined DB Type.");
@@ -82,7 +113,7 @@ public class DBTestController {
 		log.info("redisPut - Config("+redisEntity.getRedisIP()+":"+redisEntity.getRedisPort()+")");
 		
 		try {
-			dbTestService.insertData(redisEntity);
+			redisService.redisInsertData(redisEntity);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 		}
@@ -96,7 +127,7 @@ public class DBTestController {
 		log.info("redisPutRandom - "+redisEntity.getRedisPeriod()+"put/sec : "+redisEntity.getRedisTerm()+"sec");
 		
 		try {
-			dbTestService.redisPutRandom(redisEntity);
+			redisService.redisPutRandom(redisEntity);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 		}
@@ -107,7 +138,7 @@ public class DBTestController {
 		log.info("redisGetAll - Config("+redisEntity.getRedisIP()+":"+redisEntity.getRedisPort()+")");
 		
 		try {
-			dbTestService.redisGetAll(redisEntity);
+			redisService.redisGetAll(redisEntity);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 		}
@@ -118,7 +149,18 @@ public class DBTestController {
 		log.info("redisGetData - Config("+redisEntity.getRedisIP()+":"+redisEntity.getRedisPort()+")");
 		
 		try {
-			dbTestService.redisGetData(redisEntity);
+			redisService.redisGetData(redisEntity);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+		}
+	}
+	
+	@RequestMapping(value = "/redisGetAllConfig", method = RequestMethod.GET)
+	public void redisGetAllConfig(@ModelAttribute redisEntity redisEntity) { 
+		log.info("redisGetAllConfig - Config("+redisEntity.getRedisIP()+":"+redisEntity.getRedisPort()+")");
+		
+		try {
+			redisService.redisGetAllConfig(redisEntity);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 		}
@@ -130,7 +172,7 @@ public class DBTestController {
 		log.info("redisDelKey - "+redisEntity.getInsertData());
 		
 		try {
-			dbTestService.redisDelKey(redisEntity);
+			redisService.redisDelKey(redisEntity);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 		}
@@ -142,7 +184,32 @@ public class DBTestController {
 		log.info("redisAllDelete - Config("+redisEntity.getRedisIP()+":"+redisEntity.getRedisPort()+")");
 		
 		try {
-			dbTestService.redisAllDelete(redisEntity);
+			redisService.redisAllDelete(redisEntity);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+		}
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/rabbitmqPut", method = RequestMethod.PUT)
+	public void rabbitmqPut(@ModelAttribute rabbitmqEntity rabbitmqEntity) { 
+		log.info("rabbitmqPut - Config("+rabbitmqEntity.getRabbitmqIP()+":"+rabbitmqEntity.getRabbitmqPort()+")");
+		
+		try {
+			rabbitmqService.rabbitmqInsertData(rabbitmqEntity);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+		}
+	    
+		//return "redis";
+	}
+	
+	@RequestMapping(value = "/rabbitmqGetData", method = RequestMethod.GET)
+	public void rabbitmqGetData(@ModelAttribute rabbitmqEntity rabbitmqEntity) { 
+		log.info("redisGetData - Config("+rabbitmqEntity.getRabbitmqIP()+":"+rabbitmqEntity.getRabbitmqPort()+")");
+		
+		try {
+			rabbitmqService.rabbitmqGetData(rabbitmqEntity);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 		}
