@@ -21,12 +21,16 @@ public class RabbitMQConfig {
 	 @Value("${spring.rabbitmq.password}")
 	 private String rabbitmqpw;
 	 
+	 @Value("${spring.rabbitmq.virtual-host}")
+	 private String vhost;
+	 
 	 public ConnectionFactory rabbitmqConnectionFactory() {
 		 ConnectionFactory factory = new ConnectionFactory();
-		 factory.setUsername(username);
-		 factory.setPassword(rabbitmqpw);
 		 factory.setHost(hostname);
 		 factory.setPort(portnum);
+		 factory.setUsername(username);
+		 factory.setPassword(rabbitmqpw);
+		 factory.setVirtualHost(vhost);
 		 
 		 return factory;
 	 }

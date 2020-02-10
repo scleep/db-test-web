@@ -88,6 +88,9 @@ public class DBTestController {
 				mav.addObject("setedPassword", properties.get("spring.rabbitmq.password"));
 				mav.addObject("setedUsername", properties.get("spring.rabbitmq.username"));
 				break;
+			case "kafka":
+				mav = new ModelAndView("kafka");
+				break;
 			default :
 				log.info("Undefined DB Type.");
 			}
