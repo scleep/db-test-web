@@ -96,7 +96,8 @@
 		/* PUT ------------------------------------------------------------------------------------------- */
 		$('#putData_btn').click(function() {
 			var dataMap = {};
-			dataMap[$('#rabbitmq_queueName').val()] = $('#rabbitmq_message').val();
+			dataMap['queueName'] = $('#rabbitmq_queueName').val();
+			dataMap['message'] = $('#rabbitmq_message').val();
 			var data = $.extend({},config,{insertData:dataMap});
 	        $.ajax({
 	            url:'/DBTest/rabbitmqPut',
@@ -179,7 +180,7 @@
 
 		$('#getData_btn').click(function() {
 			var dataMap = {};
-			dataMap[$('#rabbitmqGetData').val()] = "-";
+			dataMap['queueName'] = $('#rabbitmqGetData').val();
 			var data = $.extend({},config,{insertData:dataMap});
 	        $.ajax({
 	            url:'/DBTest/rabbitmqGetData',
