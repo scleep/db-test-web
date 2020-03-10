@@ -9,7 +9,7 @@ import com.rabbitmq.client.ConnectionFactory;
 @Configuration
 public class RabbitMQConfig {
 	
-	@Value("${spring.rabbitmq.host}")
+	 @Value("${spring.rabbitmq.host}")
 	 private String hostname;
 	
 	 @Value("${spring.rabbitmq.port}")

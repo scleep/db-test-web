@@ -1,8 +1,10 @@
 package com.db.test.service;
 
-import org.springframework.context.annotation.Configuration;
+import java.io.Reader;
+import java.util.Properties;
 
-import com.db.test.domain.redisEntity;
+import org.apache.ibatis.io.Resources;
+import org.springframework.context.annotation.Configuration;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -11,7 +13,18 @@ import lombok.extern.slf4j.Slf4j;
 public abstract class DBTestServiceImpl implements DBTestService {
 
 	
-	public void temp() {
+	public Properties getProperties() {
+		String path = "application.properties";
+		Properties properties = new Properties();
 		
+		try {
+			Reader reader = Resources.getResourceAsReader(path);
+            properties.load(reader);
+            
+		} catch (Exception e) {
+			log.error(e.getMessage());		
+		}
+		
+		return properties;
 	}
 }

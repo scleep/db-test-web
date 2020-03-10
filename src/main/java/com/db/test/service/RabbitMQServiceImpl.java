@@ -2,8 +2,10 @@ package com.db.test.service;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Properties;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.ValueOperations;
 
@@ -62,20 +64,57 @@ public class RabbitMQServiceImpl extends DBTestServiceImpl {
 
 	@Override
 	public void rabbitmqInsertData(rabbitmqEntity rabbitmqEntity) throws Exception {
-		log.info("rabbitmqInsertData - Config("+rabbitmqEntity.getRabbitmqIP()+":"+rabbitmqEntity.getRabbitmqPort()+")");
+		Properties properties = getProperties();
+		log.info("rabbitmqInsertData - Config("+properties.get("spring.rabbitmq.host")+":"+properties.get("spring.rabbitmq.port")+")");
 		
-		String QUEUE_NAME = (String) rabbitmqEntity.getInsertData().get("queueName");
-		String message = (String) rabbitmqEntity.getInsertData().get("message");
-		log.info("rabbitmqInsertData -  QUEUE_NAME: "+QUEUE_NAME+", Message: "+message);
+		String queue_name = (String) rabbitmqEntity.getQueueName();
+		String message = (String) rabbitmqEntity.getMessage();
 		
 		try {
 			Connection connection = rabbitmqConfig.rabbitmqConnectionFactory().newConnection();
 			
 		    Channel channel = connection.createChannel();
 		    
-		    channel.queueDeclare(QUEUE_NAME, false, false, false, null);
+		    channel.queueDeclare(queue_name, false, false, false, null);
 
-		    channel.basicPublish("", QUEUE_NAME, null, message.getBytes("UTF-8"));
+		    channel.basicPublish("", queue_name, null, message.getBytes("UTF-8"));
+		    System.out.println(" [x] Sent '" + message + "'");
+		    
+		    channel.close();
+		    connection.close();
+
+		} catch (Exception e) {
+			log.error(e.getMessage());		
+		}
+		
+	}
+	
+	public void rabbitmqInsertData2(rabbitmqEntity rabbitmqEntity) throws Exception {
+		Properties properties = getProperties();
+		log.info("rabbitmqInsertData - Config("+properties.get("spring.rabbitmq.host")+":"+properties.get("spring.rabbitmq.port")+")");
+		
+		String exchange_name = (String) rabbitmqEntity.getInsertData().get("exchangeName");
+		String queue_name = (String) rabbitmqEntity.getInsertData().get("queueName");
+		String message = (String) rabbitmqEntity.getInsertData().get("message");
+		String routingKey = (String) rabbitmqEntity.getInsertData().get("routingKey");
+
+		log.info("rabbitmqInsertData -  QUEUE_NAME: "+queue_name+", Message: "+message);
+		
+		try {
+			Connection connection = rabbitmqConfig.rabbitmqConnectionFactory().newConnection();
+			
+		    Channel channel = connection.createChannel();
+		    
+		    // (String)exchange_name, (String)type, (Boolean)durable
+		    channel.exchangeDeclare(exchange_name, "direct", true);
+		    
+		    // (String)queue_name, (Boolean)durable, (Boolean)exclusive, (Boolean)autoDelete, (Map<String,Object>)arguments
+		    channel.queueDeclare(queue_name, true, false, false, null);
+		    
+		    // (String)queue, (String)exchange, (String)routingKey
+		    channel.queueBind(queue_name, exchange_name, routingKey);
+
+		    channel.basicPublish("", queue_name, null, message.getBytes("UTF-8"));
 		    System.out.println(" [x] Sent '" + message + "'");
 		    
 		    channel.close();
@@ -89,10 +128,13 @@ public class RabbitMQServiceImpl extends DBTestServiceImpl {
 	
 	@Override
 	public void rabbitmqGetData(rabbitmqEntity rabbitmqEntity) throws Exception {
-		log.info("rabbitmqGetData - Config("+rabbitmqEntity.getRabbitmqIP()+":"+rabbitmqEntity.getRabbitmqPort()+")");
+		Properties properties = getProperties();
+		log.info("rabbitmqInsertData - Config("+properties.get("spring.rabbitmq.host")+":"+properties.get("spring.rabbitmq.port")+")");
 		
 		String QUEUE_NAME = (String) rabbitmqEntity.getInsertData().get("queueName");
 		log.info("rabbitmqGetData -  QUEUE_NAME: "+QUEUE_NAME);
+		
+		String getData = "";
 		try {
 			Connection connection = rabbitmqConfig.rabbitmqConnectionFactory().newConnection();
 		    Channel channel = connection.createChannel();
@@ -106,6 +148,7 @@ public class RabbitMQServiceImpl extends DBTestServiceImpl {
                       System.out.println(" [x] Received '" + message + "'");
                 }
             };
+            System.out.println(consumer.toString());
             channel.basicConsume(QUEUE_NAME, true, consumer);
 
 

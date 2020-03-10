@@ -84,27 +84,27 @@
 	
 <script type="text/javascript">
 	$(document).ready(function() {
-			var config = {
+			/* var config = {
 					rabbitmqIP:$('#rabbitmqIP').val(),
 					rabbitmqPort:$('#rabbitmqPort').val(),
 					rabbitmqPw:$('#rabbitmqPw').val(),
 					rabbitmqUsername:$('#rabbitmqUsername').val()
-			};
+			}; */
 
 			var inputId = null;
 			var count = 0;
 		/* PUT ------------------------------------------------------------------------------------------- */
 		$('#putData_btn').click(function() {
-			var dataMap = {};
-			dataMap['queueName'] = $('#rabbitmq_queueName').val();
-			dataMap['message'] = $('#rabbitmq_message').val();
-			var data = $.extend({},config,{insertData:dataMap});
+			var dataMap = {
+					queueName:$('#rabbitmq_queueName').val(),
+					message:$('#rabbitmq_message').val()
+			};
 	        $.ajax({
 	            url:'/DBTest/rabbitmqPut',
 	            type:'PUT',
-	            data: data,
+	            data: dataMap,
 	            success: function(res){
-	                alert("성공");
+	                alert(res);
 	            } // end success
 	        });// end ajax
 	    });

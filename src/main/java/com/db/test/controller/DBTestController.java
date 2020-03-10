@@ -6,6 +6,8 @@ import java.util.Properties;
 import org.apache.ibatis.io.Resources;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +21,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.db.test.domain.rabbitmqEntity;
 import com.db.test.domain.redisEntity;
 import com.db.test.service.DBTestService;
+import com.db.test.service.DBTestServiceImpl;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -195,8 +198,8 @@ public class DBTestController {
 	
 	@ResponseBody
 	@RequestMapping(value = "/rabbitmqPut", method = RequestMethod.PUT)
-	public void rabbitmqPut(@ModelAttribute rabbitmqEntity rabbitmqEntity) { 
-		log.info("rabbitmqPut - Config("+rabbitmqEntity.getRabbitmqIP()+":"+rabbitmqEntity.getRabbitmqPort()+")");
+	public ResponseEntity<String> rabbitmqPut(@ModelAttribute rabbitmqEntity rabbitmqEntity) { 
+		log.info("rabbitmqPut - "+"QueueName: "+rabbitmqEntity.getQueueName()+", Message: "+rabbitmqEntity.getMessage());
 		
 		try {
 			rabbitmqService.rabbitmqInsertData(rabbitmqEntity);
@@ -204,18 +207,20 @@ public class DBTestController {
 			log.error(e.getMessage());
 		}
 	    
-		//return "redis";
+		return new ResponseEntity<>("RabbitMQ - Put Data successed.", HttpStatus.OK);
 	}
 	
 	@RequestMapping(value = "/rabbitmqGetData", method = RequestMethod.GET)
-	public void rabbitmqGetData(@ModelAttribute rabbitmqEntity rabbitmqEntity) { 
-		log.info("redisGetData - Config("+rabbitmqEntity.getRabbitmqIP()+":"+rabbitmqEntity.getRabbitmqPort()+")");
+	public ResponseEntity<String> rabbitmqGet(@ModelAttribute rabbitmqEntity rabbitmqEntity) { 
+		log.info("rabbitmqGet - QueueName: "+rabbitmqEntity.getQueueName());
 		
 		try {
 			rabbitmqService.rabbitmqGetData(rabbitmqEntity);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 		}
+		
+		return new ResponseEntity<>("RabbitMQ - Get Data successed.", HttpStatus.OK);
 	}
 	
 }

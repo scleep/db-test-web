@@ -1,5 +1,72 @@
-{"properties": [{
-  "name": "host",
-  "type": "java.lang.String",
-  "description": "A description for 'host'"
-}]}
+{"properties": [
+  {
+    "name": "host",
+    "type": "java.lang.String",
+    "description": "A description for 'host'"
+  },
+  {
+    "name": "enabled",
+    "type": "java.lang.String",
+    "description": "A description for 'enabled'"
+  },
+  {
+    "name": "server",
+    "type": "java.lang.String",
+    "description": "A description for 'server'"
+  },
+  {
+    "name": "port",
+    "type": "java.lang.String",
+    "description": "A description for 'port'"
+  },
+  {
+    "name": "error",
+    "type": "java.lang.String",
+    "description": "A description for 'error'"
+  },
+  {
+    "name": "whitelabel",
+    "type": "java.lang.String",
+    "description": "A description for 'whitelabel'"
+  },
+  {
+    "name": "server",
+    "type": "java.lang.String",
+    "description": "A description for 'server'"
+  },
+  {
+    "name": "server",
+    "type": "java.lang.String",
+    "description": "A description for 'server'"
+  },
+  {
+    "name": "enabled",
+    "type": "java.lang.String",
+    "description": "A description for 'enabled'"
+  }
+]}{
+    "name": "whitelabel",
+    "type": "java.lang.String",
+    "description": "A description for 'whitelabel'"
+  }
+]}{
+    "name": "error",
+    "type": "java.lang.String",
+    "description": "A description for 'error'"
+  }
+]}{
+    "name": "port",
+    "type": "java.lang.String",
+    "description": "A description for 'port'"
+  }
+]}{
+    "name": "server",
+    "type": "java.lang.String",
+    "description": "A description for 'server'"
+  }
+]}{
+    "name": "server",
+    "type": "java.lang.String",
+    "description": "A description for 'server'"
+  }
+]}

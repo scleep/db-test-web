@@ -13,11 +13,9 @@ import lombok.NoArgsConstructor;
 @Data
 @Configuration
 public class rabbitmqEntity {
-	private String rabbitmqIP;
-	private String rabbitmqPort;
-	private String rabbitmqPw;
-	private String rabbitmqUsername;
 	private String rabbitmqPeriod;
 	private String rabbitmqTerm;
+	private String queueName;
+	private String message;
 	private Map<String, Object> insertData;
 }
