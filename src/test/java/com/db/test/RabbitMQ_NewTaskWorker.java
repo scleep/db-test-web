@@ -10,8 +10,8 @@ public class RabbitMQ_NewTaskWorker {
 	private static final String TASK_QUEUE_NAME = "task_queue";
 
 	public static void main(String[] argv) throws Exception {
-		ConnectionFactory factory = new ConnectionFactory();
-		factory.setHost("localhost");
+		ConnectionFactory factory = rabbitmqConnectionFactory();
+
 		final Connection connection = factory.newConnection();
 		final Channel channel = connection.createChannel();
 
