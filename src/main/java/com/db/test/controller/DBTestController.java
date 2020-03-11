@@ -210,6 +210,18 @@ public class DBTestController {
 		return new ResponseEntity<>("RabbitMQ - Put Data successed.", HttpStatus.OK);
 	}
 	
+	@ResponseBody
+	@RequestMapping(value = "/rabbitmqPutRandom", method = RequestMethod.PUT)
+	public void rabbitmqPutRandom(@ModelAttribute rabbitmqEntity rabbitmqEntity) { 
+		log.info("redisPutRandom - "+rabbitmqEntity.getRabbitmqPeriod()+"put/sec : "+rabbitmqEntity.getRabbitmqTerm()+"sec");
+		
+		try {
+			rabbitmqService.rabbitmqPutRandom(rabbitmqEntity);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+		}
+	}
+	
 	@RequestMapping(value = "/rabbitmqGetData", method = RequestMethod.GET)
 	public ResponseEntity<String> rabbitmqGet(@ModelAttribute rabbitmqEntity rabbitmqEntity) { 
 		log.info("rabbitmqGet - QueueName: "+rabbitmqEntity.getQueueName());
@@ -221,6 +233,20 @@ public class DBTestController {
 		}
 		
 		return new ResponseEntity<>("RabbitMQ - Get Data successed.", HttpStatus.OK);
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/rabbitmqPut_task", method = RequestMethod.PUT)
+	public ResponseEntity<String> rabbitmqPut_task(@ModelAttribute rabbitmqEntity rabbitmqEntity) { 
+		log.info("rabbitmqPut_task - "+"QueueName: "+rabbitmqEntity.getQueueName()+", Message: "+rabbitmqEntity.getMessage());
+		
+		try {
+			rabbitmqService.rabbitmqInsertData_task(rabbitmqEntity);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+		}
+	    
+		return new ResponseEntity<>("RabbitMQ - Put Data successed.", HttpStatus.OK);
 	}
 	
 }

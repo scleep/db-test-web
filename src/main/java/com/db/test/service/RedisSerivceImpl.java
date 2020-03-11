@@ -185,6 +185,18 @@ public class RedisSerivceImpl extends DBTestServiceImpl {
 	public void rabbitmqGetData(rabbitmqEntity rabbitmqEntity) throws Exception {
 	}
 
+	@Override
+	public void rabbitmqPutRandom(rabbitmqEntity rabbitmqEntity) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void rabbitmqInsertData_task(rabbitmqEntity rabbitmqEntity) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
 	
 	
 //	public void insertData2(redisEntity redisEntity) throws Exception {

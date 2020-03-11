@@ -19,6 +19,7 @@ import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.Consumer;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
+import com.rabbitmq.client.MessageProperties;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -75,8 +76,10 @@ public class RabbitMQServiceImpl extends DBTestServiceImpl {
 			
 		    Channel channel = connection.createChannel();
 		    
+		    // (String)queue_name, (Boolean)durable, (Boolean)exclusive, (Boolean)autoDelete, (Map<String,Object>)arguments
 		    channel.queueDeclare(queue_name, false, false, false, null);
-
+		    
+		    // (String)exchange, (String)routingKey, (AMQP.BasicProperties)props, (byte[])body
 		    channel.basicPublish("", queue_name, null, message.getBytes("UTF-8"));
 		    System.out.println(" [x] Sent '" + message + "'");
 		    
@@ -113,7 +116,8 @@ public class RabbitMQServiceImpl extends DBTestServiceImpl {
 		    
 		    // (String)queue, (String)exchange, (String)routingKey
 		    channel.queueBind(queue_name, exchange_name, routingKey);
-
+		    
+		    // (String)exchange, (String)routingKey, (AMQP.BasicProperties)props, (byte[])body
 		    channel.basicPublish("", queue_name, null, message.getBytes("UTF-8"));
 		    System.out.println(" [x] Sent '" + message + "'");
 		    
@@ -129,17 +133,17 @@ public class RabbitMQServiceImpl extends DBTestServiceImpl {
 	@Override
 	public void rabbitmqGetData(rabbitmqEntity rabbitmqEntity) throws Exception {
 		Properties properties = getProperties();
-		log.info("rabbitmqInsertData - Config("+properties.get("spring.rabbitmq.host")+":"+properties.get("spring.rabbitmq.port")+")");
+		log.info("rabbitmqGetData - Config("+properties.get("spring.rabbitmq.host")+":"+properties.get("spring.rabbitmq.port")+")");
 		
-		String QUEUE_NAME = (String) rabbitmqEntity.getInsertData().get("queueName");
-		log.info("rabbitmqGetData -  QUEUE_NAME: "+QUEUE_NAME);
+		String queue_name = (String) rabbitmqEntity.getQueueName();
+		log.info("rabbitmqGetData -  QUEUE_NAME: "+queue_name);
 		
 		String getData = "";
 		try {
 			Connection connection = rabbitmqConfig.rabbitmqConnectionFactory().newConnection();
 		    Channel channel = connection.createChannel();
 
-		    channel.queueDeclare(QUEUE_NAME, false, false, false, null);
+		    channel.queueDeclare(queue_name, false, false, false, null);
 		    
 		    Consumer consumer = new DefaultConsumer(channel) {
                 @Override
@@ -148,9 +152,77 @@ public class RabbitMQServiceImpl extends DBTestServiceImpl {
                       System.out.println(" [x] Received '" + message + "'");
                 }
             };
-            System.out.println(consumer.toString());
-            channel.basicConsume(QUEUE_NAME, true, consumer);
+            channel.basicConsume(queue_name, true, consumer);
 
+
+		} catch (Exception e) {
+			log.error(e.getMessage());		
+		}
+		
+	}
+	
+	// 현재 사용 X
+	@Override
+	public void rabbitmqPutRandom(rabbitmqEntity rabbitmqEntity) throws Exception {
+		Properties properties = getProperties();
+		log.info("rabbitmqPutRandom - Config("+properties.get("spring.rabbitmq.host")+":"+properties.get("spring.rabbitmq.port")+")");
+		
+		int period = Integer.parseInt(rabbitmqEntity.getRabbitmqPeriod());
+		int term = Integer.parseInt(rabbitmqEntity.getRabbitmqTerm());
+		int count = 0;
+		int put_cnt = 0;
+		String default_queue_name = "task";
+		
+		try {
+			Connection connection = rabbitmqConfig.rabbitmqConnectionFactory().newConnection();
+			
+		    Channel channel = connection.createChannel();
+		    
+			while(count < term) {
+				put_cnt++;
+				String queue_name = default_queue_name+"["+put_cnt+"]";
+				String message = queue_name+"의 메시지입니다.";
+				
+				channel.queueDeclare(queue_name, false, false, false, null);
+
+			    channel.basicPublish("", queue_name, null, message.getBytes("UTF-8"));
+			    System.out.println(" ["+put_cnt+"] Sent '" + message + "'");
+				
+				Thread.sleep(period*1000);
+				count+=period;
+			}
+			
+			channel.close();
+		    connection.close();
+			
+		} catch (Exception e) {
+			log.error(e.getMessage());		
+		}
+		
+	}
+
+	@Override
+	public void rabbitmqInsertData_task(rabbitmqEntity rabbitmqEntity) throws Exception {
+		Properties properties = getProperties();
+		log.info("rabbitmqInsertData_task - Config("+properties.get("spring.rabbitmq.host")+":"+properties.get("spring.rabbitmq.port")+")");
+		
+		String queue_name = (String) rabbitmqEntity.getQueueName();
+		String message = (String) rabbitmqEntity.getMessage();
+		
+		try {
+			Connection connection = rabbitmqConfig.rabbitmqConnectionFactory().newConnection();
+			
+		    Channel channel = connection.createChannel();
+		    
+		    // (String)queue_name, (Boolean)durable, (Boolean)exclusive, (Boolean)autoDelete, (Map<String,Object>)arguments
+		    channel.queueDeclare(queue_name, true, false, false, null);
+		    
+		    // (String)exchange, (String)routingKey, (AMQP.BasicProperties)props, (byte[])body
+		    channel.basicPublish("", queue_name, MessageProperties.PERSISTENT_TEXT_PLAIN, message.getBytes("UTF-8"));
+		    System.out.println(" [x] Sent '" + message + "'");
+		    
+		    channel.close();
+		    connection.close();
 
 		} catch (Exception e) {
 			log.error(e.getMessage());		

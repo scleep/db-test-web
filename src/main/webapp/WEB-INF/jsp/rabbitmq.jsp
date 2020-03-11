@@ -18,7 +18,8 @@
   	
 	<div id="container">
 		<div id="configSetting">
-			<h3>RabbitMQ-Config</h3>
+			<h3>RabbitMQ-Config <input type="button" value="관리" onclick="window.open('http://${setedHost}:15672', '_blank')"></h3>
+			
 			<div>
 				IP: <input id="rabbitmqIP" value="${setedHost}">
 				&nbsp;&nbsp;&nbsp;
@@ -43,11 +44,11 @@
 				<button id="putData_btn">전송</button>
 				<br><br>
 				
-				<!-- 자동 입력 - 주기: <input id="period_randomData" value="1"> sec
+				Queue 자동 입력 - 주기: <input id="period_randomData" value="1"> sec
 				&nbsp;&nbsp;&nbsp;
 				
 				<input id="start_setTimeout" type="button" value="시작"/>
-				<input id="stop_setTimeout" type="button" value="중지"/> -->
+				<input id="stop_setTimeout" type="button" value="중지"/>
 			</div>
 			<hr>
 		</div> <!-- end putData -->
@@ -109,20 +110,24 @@
 	        });// end ajax
 	    });
 
-		$('#putRandomData_btn').click(function() {
+		/* $('#putRandomData_btn').click(function() {
 			var period_randomData = $('#period_randomData').val();
 			var term_randomData = $('#term_randomData').val();
+
+			var dataMap = {
+					rabbitmqPeriod:period_randomData,
+					rabbitmqTerm:term_randomData
+			};
 			
-			var data = $.extend({},config,{redisPeriod:period_randomData, redisTerm:term_randomData});
 	        $.ajax({
 	            url:'/DBTest/redisPutRandom',
 	            type:'PUT',
-	            data: data,
+	            data: dataMap,
 	            success: function(res){
 	                alert("성공");
 	            } // end success
 	        });// end ajax
-	    });
+	    }); */
 
 		$('#start_setTimeout').click(function() {
 			startRepeat(count);
@@ -148,16 +153,17 @@
 		}
 
 		function putData(count) {
-			var key = "key" + count;
-			var value = "value" + count;
-			var dataMap = {};
-			dataMap[key] = value;
-			var data = $.extend({},config,{insertData:dataMap});
+			var queue_name = "Task" + count;
+			var message = queue_name+ "'s message.'";
+			var dataMap = {
+					queueName:queue_name,
+					message:message
+			};
 			
 			$.ajax({
-	            url:'/DBTest/redisPut',
+	            url:'/DBTest/rabbitmqPut_task',
 	            type:'PUT',
-	            data: data,
+	            data: dataMap,
 	            success: function(res){
 	                // alert("성공");
 	            } // end success
@@ -179,13 +185,13 @@
 	    });
 
 		$('#getData_btn').click(function() {
-			var dataMap = {};
-			dataMap['queueName'] = $('#rabbitmqGetData').val();
-			var data = $.extend({},config,{insertData:dataMap});
+			var dataMap = {
+					queueName:$('#rabbitmqGetData').val(),
+			};
 	        $.ajax({
 	            url:'/DBTest/rabbitmqGetData',
 	            type:'GET',
-	            data: data,
+	            data: dataMap,
 	            success: function(res){
 	                alert("성공");
 	            } // end success

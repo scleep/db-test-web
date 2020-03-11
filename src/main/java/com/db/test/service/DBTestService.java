@@ -23,4 +23,8 @@ public interface DBTestService {
 
 	void rabbitmqGetData(rabbitmqEntity rabbitmqEntity) throws Exception;
 
+	void rabbitmqPutRandom(rabbitmqEntity rabbitmqEntity) throws Exception;
+
+	void rabbitmqInsertData_task(rabbitmqEntity rabbitmqEntity) throws Exception;
+
 }
